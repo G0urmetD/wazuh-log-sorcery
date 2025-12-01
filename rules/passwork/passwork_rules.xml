@@ -1,0 +1,1117 @@
+<!--
+  Passwork Custom Rules for Wazuh
+  
+  These rules detect and alert on Passwork password manager events.
+  Requires the passwork_decoder-v2.xml decoder to be installed.
+  (Alternatively passwork_decoder.xml can be used for backward compatibility)
+  
+  The v2 decoder uses program_name matching (php-fpm) for more precise log identification.
+  
+  CEF Format Structure:
+  CEF:Version|Device Vendor|Device Product|Device Version|Signature ID|Name|Severity|Extension
+  
+  Reference: https://passwork.pro/tech-guides/administration/action-history/syslog-and-eventviewer/
+  Events: https://passwork.pro/tech-guides/administration/action-history/action-history-events-list/
+  
+  Rule ID Range: 100700 - 100960
+-->
+
+<group name="passwork_rules,">
+
+  <!-- Base rule for all Passwork events -->
+  <rule id="100700" level="0">
+    <decoded_as>passwork</decoded_as>
+    <description>Passwork: Event detected.</description>
+  </rule>
+
+  <!-- ============================================ -->
+  <!-- Password Actions (100701 - 100729)          -->
+  <!-- ============================================ -->
+
+  <rule id="100701" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^item_created$</field>
+    <description>Passwork: Password added by $(srcuser).</description>
+    <group>passwork_password,</group>
+  </rule>
+
+  <rule id="100702" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^item_viewed$</field>
+    <description>Passwork: Password opened/viewed by $(srcuser).</description>
+    <group>passwork_password,data_access,</group>
+  </rule>
+
+  <rule id="100703" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^item_updated$</field>
+    <description>Passwork: Password edited by $(srcuser).</description>
+    <group>passwork_password,data_modification,</group>
+  </rule>
+
+  <rule id="100704" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^item_moved_to_bin$</field>
+    <description>Passwork: Password moved to Bin by $(srcuser).</description>
+    <group>passwork_password,data_modification,</group>
+  </rule>
+
+  <rule id="100705" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^item_restored_from_bin$</field>
+    <description>Passwork: Password restored from Bin by $(srcuser).</description>
+    <group>passwork_password,data_modification,</group>
+  </rule>
+
+  <rule id="100706" level="7">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^item_deleted$</field>
+    <description>Passwork: Password deleted by $(srcuser).</description>
+    <group>passwork_password,data_modification,</group>
+  </rule>
+
+  <rule id="100707" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^item_copied$</field>
+    <description>Passwork: Password copied by $(srcuser).</description>
+    <group>passwork_password,data_access,</group>
+  </rule>
+
+  <rule id="100708" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^item_moved$</field>
+    <description>Passwork: Password moved by $(srcuser).</description>
+    <group>passwork_password,data_modification,</group>
+  </rule>
+
+  <rule id="100709" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^item_imported$</field>
+    <description>Passwork: Password imported by $(srcuser).</description>
+    <group>passwork_password,data_import,</group>
+  </rule>
+
+  <rule id="100710" level="10">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^item_exported$</field>
+    <description>Passwork: Password exported by $(srcuser) - CRITICAL: Potential data exfiltration.</description>
+    <group>passwork_password,data_export,</group>
+  </rule>
+
+  <rule id="100711" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^inboxItem_sent$</field>
+    <description>Passwork: Password sent to user by $(srcuser).</description>
+    <group>passwork_password,data_sharing,</group>
+  </rule>
+
+  <rule id="100712" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^inboxItem_access_set$</field>
+    <description>Passwork: User access to password changed by $(srcuser).</description>
+    <group>passwork_password,access_control,</group>
+  </rule>
+
+  <rule id="100713" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^inboxItem_revoked$</field>
+    <description>Passwork: User access to password revoked by $(srcuser).</description>
+    <group>passwork_password,access_control,</group>
+  </rule>
+
+  <rule id="100714" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^inboxItem_userGroup_sent$</field>
+    <description>Passwork: Password sent to group by $(srcuser).</description>
+    <group>passwork_password,data_sharing,</group>
+  </rule>
+
+  <rule id="100715" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^inboxItem_userGroup_access_set$</field>
+    <description>Passwork: Group access to password changed by $(srcuser).</description>
+    <group>passwork_password,access_control,</group>
+  </rule>
+
+  <rule id="100716" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^inboxItem_userGroup_revoked$</field>
+    <description>Passwork: Group access to password revoked by $(srcuser).</description>
+    <group>passwork_password,access_control,</group>
+  </rule>
+
+  <rule id="100717" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^link_created$</field>
+    <description>Passwork: Password link created by $(srcuser).</description>
+    <group>passwork_password,data_sharing,</group>
+  </rule>
+
+  <rule id="100718" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^link_viewed$</field>
+    <description>Passwork: Password link opened by $(srcuser).</description>
+    <group>passwork_password,data_access,</group>
+  </rule>
+
+  <rule id="100719" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^link_deleted$</field>
+    <description>Passwork: Password link deleted by $(srcuser).</description>
+    <group>passwork_password,</group>
+  </rule>
+
+  <rule id="100720" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^item_shortcut_created$</field>
+    <description>Passwork: Password shortcut created by $(srcuser).</description>
+    <group>passwork_shortcut,</group>
+  </rule>
+
+  <rule id="100721" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^item_shortcut_moved$</field>
+    <description>Passwork: Password shortcut moved by $(srcuser).</description>
+    <group>passwork_shortcut,</group>
+  </rule>
+
+  <rule id="100722" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^item_shortcut_deleted$</field>
+    <description>Passwork: Password shortcut deleted by $(srcuser).</description>
+    <group>passwork_shortcut,</group>
+  </rule>
+
+  <!-- ============================================ -->
+  <!-- Shortcut Actions (100730 - 100749)          -->
+  <!-- ============================================ -->
+
+  <rule id="100730" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^shortcut_created$</field>
+    <description>Passwork: Shortcut created by $(srcuser).</description>
+    <group>passwork_shortcut,</group>
+  </rule>
+
+  <rule id="100731" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^shortcut_viewed$</field>
+    <description>Passwork: Shortcut viewed by $(srcuser).</description>
+    <group>passwork_shortcut,data_access,</group>
+  </rule>
+
+  <rule id="100732" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^shortcut_copied$</field>
+    <description>Passwork: Shortcut copied by $(srcuser).</description>
+    <group>passwork_shortcut,data_access,</group>
+  </rule>
+
+  <rule id="100733" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^shortcut_moved$</field>
+    <description>Passwork: Shortcut moved by $(srcuser).</description>
+    <group>passwork_shortcut,</group>
+  </rule>
+
+  <rule id="100734" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^shortcut_moved_to_bin$</field>
+    <description>Passwork: Shortcut moved to Bin by $(srcuser).</description>
+    <group>passwork_shortcut,</group>
+  </rule>
+
+  <rule id="100735" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^shortcut_restored_from_bin$</field>
+    <description>Passwork: Shortcut restored from Bin by $(srcuser).</description>
+    <group>passwork_shortcut,</group>
+  </rule>
+
+  <rule id="100736" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^shortcut_deleted$</field>
+    <description>Passwork: Shortcut deleted by $(srcuser).</description>
+    <group>passwork_shortcut,</group>
+  </rule>
+
+  <rule id="100737" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^shortcut_item_updated$</field>
+    <description>Passwork: Initial shortcut password changed by $(srcuser).</description>
+    <group>passwork_shortcut,</group>
+  </rule>
+
+  <rule id="100738" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^shortcut_item_moved_to_bin$</field>
+    <description>Passwork: Initial shortcut password moved to Bin by $(srcuser).</description>
+    <group>passwork_shortcut,</group>
+  </rule>
+
+  <rule id="100739" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^shortcut_item_restored_from_bin$</field>
+    <description>Passwork: Initial shortcut password restored from Bin by $(srcuser).</description>
+    <group>passwork_shortcut,</group>
+  </rule>
+
+  <rule id="100740" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^shortcut_item_deleted$</field>
+    <description>Passwork: Initial shortcut password deleted by $(srcuser).</description>
+    <group>passwork_shortcut,</group>
+  </rule>
+
+  <!-- ============================================ -->
+  <!-- Vault Actions (100750 - 100779)             -->
+  <!-- ============================================ -->
+
+  <rule id="100750" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^vault_created$</field>
+    <description>Passwork: Vault created by $(srcuser).</description>
+    <group>passwork_vault,configuration_change,</group>
+  </rule>
+
+  <rule id="100751" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^vault_updated$</field>
+    <description>Passwork: Vault renamed by $(srcuser).</description>
+    <group>passwork_vault,configuration_change,</group>
+  </rule>
+
+  <rule id="100752" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^vault_type_changed$</field>
+    <description>Passwork: Vault type changed by $(srcuser).</description>
+    <group>passwork_vault,configuration_change,</group>
+  </rule>
+
+  <rule id="100753" level="8">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^vault_deleted$</field>
+    <description>Passwork: Vault deleted by $(srcuser).</description>
+    <group>passwork_vault,configuration_change,</group>
+  </rule>
+
+  <rule id="100754" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^vault_imported$</field>
+    <description>Passwork: Vault imported by $(srcuser).</description>
+    <group>passwork_vault,data_import,</group>
+  </rule>
+
+  <rule id="100755" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^vault_exported$</field>
+    <description>Passwork: Vault exported by $(srcuser).</description>
+    <group>passwork_vault,data_export,</group>
+  </rule>
+
+  <rule id="100756" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^request_created$</field>
+    <description>Passwork: Request for connection to vault by $(srcuser).</description>
+    <group>passwork_vault,access_control,</group>
+  </rule>
+
+  <rule id="100757" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^request_denied$</field>
+    <description>Passwork: Request for connection to vault declined by $(srcuser).</description>
+    <group>passwork_vault,access_control,</group>
+  </rule>
+
+  <rule id="100758" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_added_to_vault$</field>
+    <description>Passwork: User connected to vault by $(srcuser).</description>
+    <group>passwork_vault,access_control,</group>
+  </rule>
+
+  <rule id="100759" level="8">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^vault_user_access_changed$</field>
+    <description>Passwork: User direct access to vault changed by $(srcuser).</description>
+    <group>passwork_vault,access_control,</group>
+  </rule>
+
+  <rule id="100760" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^vault_user_access_revoked$</field>
+    <description>Passwork: User direct access to vault revoked by $(srcuser).</description>
+    <group>passwork_vault,access_control,</group>
+  </rule>
+
+  <rule id="100761" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_removed_from_vault$</field>
+    <description>Passwork: User disconnected from vault by $(srcuser).</description>
+    <group>passwork_vault,access_control,</group>
+  </rule>
+
+  <rule id="100762" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^vault_left$</field>
+    <description>Passwork: User left vault - $(srcuser).</description>
+    <group>passwork_vault,access_control,</group>
+  </rule>
+
+  <rule id="100763" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^userGroup_added_to_vault$</field>
+    <description>Passwork: Group connected to vault by $(srcuser).</description>
+    <group>passwork_vault,access_control,</group>
+  </rule>
+
+  <rule id="100764" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^vault_userGroup_access_changed$</field>
+    <description>Passwork: Group access to vault changed by $(srcuser).</description>
+    <group>passwork_vault,access_control,</group>
+  </rule>
+
+  <rule id="100765" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^vault_userGroup_access_revoked$</field>
+    <description>Passwork: Group access to vault revoked by $(srcuser).</description>
+    <group>passwork_vault,access_control,</group>
+  </rule>
+
+  <rule id="100766" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^userGroup_removed_from_vault$</field>
+    <description>Passwork: Group disconnected from vault by $(srcuser).</description>
+    <group>passwork_vault,access_control,</group>
+  </rule>
+
+  <rule id="100767" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^vaultType_created$</field>
+    <description>Passwork: Vault type created by $(srcuser).</description>
+    <group>passwork_vault,configuration_change,</group>
+  </rule>
+
+  <rule id="100768" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^vaultType_updated$</field>
+    <description>Passwork: Vault type parameters changed by $(srcuser).</description>
+    <group>passwork_vault,configuration_change,</group>
+  </rule>
+
+  <rule id="100769" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^vaultType_deleted$</field>
+    <description>Passwork: Vault type deleted by $(srcuser).</description>
+    <group>passwork_vault,configuration_change,</group>
+  </rule>
+
+  <rule id="100770" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^vaultSettings_changed$</field>
+    <description>Passwork: Vault settings changed by $(srcuser).</description>
+    <group>passwork_vault,configuration_change,</group>
+  </rule>
+
+  <!-- ============================================ -->
+  <!-- Folder Actions (100780 - 100799)            -->
+  <!-- ============================================ -->
+
+  <rule id="100780" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^folder_created$</field>
+    <description>Passwork: Folder created by $(srcuser).</description>
+    <group>passwork_folder,</group>
+  </rule>
+
+  <rule id="100781" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^folder_updated$</field>
+    <description>Passwork: Folder renamed by $(srcuser).</description>
+    <group>passwork_folder,</group>
+  </rule>
+
+  <rule id="100782" level="8">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^folder_moved_to_bin$</field>
+    <description>Passwork: Folder moved to Bin by $(srcuser).</description>
+    <group>passwork_folder,</group>
+  </rule>
+
+  <rule id="100783" level="8">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^folder_deleted$</field>
+    <description>Passwork: Folder deleted by $(srcuser).</description>
+    <group>passwork_folder,</group>
+  </rule>
+
+  <rule id="100784" level="8">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^folder_restored_from_bin$</field>
+    <description>Passwork: Folder restored from Bin by $(srcuser).</description>
+    <group>passwork_folder,</group>
+  </rule>
+
+  <rule id="100785" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^folder_copied$</field>
+    <description>Passwork: Folder copied by $(srcuser).</description>
+    <group>passwork_folder,</group>
+  </rule>
+
+  <rule id="100786" level="8">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^folder_moved$</field>
+    <description>Passwork: Folder moved by $(srcuser).</description>
+    <group>passwork_folder,</group>
+  </rule>
+
+  <rule id="100787" level="8">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^folder_user_access_changed$</field>
+    <description>Passwork: User direct access to folder changed by $(srcuser).</description>
+    <group>passwork_folder,access_control,</group>
+  </rule>
+
+  <rule id="100788" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^folder_user_access_revoked$</field>
+    <description>Passwork: User direct access to folder revoked by $(srcuser).</description>
+    <group>passwork_folder,access_control,</group>
+  </rule>
+
+  <rule id="100789" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^folder_userGroup_access_changed$</field>
+    <description>Passwork: Group access to folder changed by $(srcuser).</description>
+    <group>passwork_folder,access_control,</group>
+  </rule>
+
+  <rule id="100790" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^folder_userGroup_access_revoked$</field>
+    <description>Passwork: Group access to folder revoked by $(srcuser).</description>
+    <group>passwork_folder,access_control,</group>
+  </rule>
+
+  <rule id="100791" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^folder_imported$</field>
+    <description>Passwork: Folder imported by $(srcuser).</description>
+    <group>passwork_folder,data_import,</group>
+  </rule>
+
+  <rule id="100792" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^folder_exported$</field>
+    <description>Passwork: Folder exported by $(srcuser).</description>
+    <group>passwork_folder,data_export,</group>
+  </rule>
+
+  <!-- ============================================ -->
+  <!-- User Account Actions (100800 - 100829)      -->
+  <!-- ============================================ -->
+
+  <rule id="100800" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_account_changed$</field>
+    <description>Passwork: Profile and interface settings changed by $(srcuser).</description>
+    <group>passwork_user_account,</group>
+  </rule>
+
+  <rule id="100801" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_notification_settings_changed$</field>
+    <description>Passwork: Notification settings changed by $(srcuser).</description>
+    <group>passwork_user_account,</group>
+  </rule>
+
+  <rule id="100802" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_password_changed$</field>
+    <description>Passwork: Password changed by $(srcuser).</description>
+    <group>passwork_user_account,authentication,</group>
+  </rule>
+
+  <rule id="100803" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_2fa_auth_set_up$</field>
+    <description>Passwork: 2FA connected by $(srcuser).</description>
+    <group>passwork_user_account,authentication,</group>
+  </rule>
+
+  <rule id="100804" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_2fa_auth_enabled$</field>
+    <description>Passwork: 2FA enabled by $(srcuser).</description>
+    <group>passwork_user_account,authentication,</group>
+  </rule>
+
+  <rule id="100805" level="7">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_2fa_auth_disabled$</field>
+    <description>Passwork: 2FA disabled by $(srcuser) - Security risk.</description>
+    <group>passwork_user_account,authentication,security_warning,</group>
+  </rule>
+
+  <rule id="100806" level="8">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_2fa_reset$</field>
+    <description>Passwork: 2FA reset by $(srcuser).</description>
+    <group>passwork_user_account,authentication,</group>
+  </rule>
+
+  <rule id="100807" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_auth_settings_changed$</field>
+    <description>Passwork: Auto sign-out settings changed by $(srcuser).</description>
+    <group>passwork_user_account,authentication,</group>
+  </rule>
+
+  <rule id="100808" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^session_terminated$</field>
+    <description>Passwork: Session terminated by $(srcuser).</description>
+    <group>passwork_user_account,session,</group>
+  </rule>
+
+  <rule id="100809" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^session_expired$</field>
+    <description>Passwork: Session lifetime expired for $(srcuser).</description>
+    <group>passwork_user_account,session,</group>
+  </rule>
+
+  <rule id="100810" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^session_finished$</field>
+    <description>Passwork: Session completed for $(srcuser).</description>
+    <group>passwork_user_account,session,</group>
+  </rule>
+
+  <rule id="100811" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_api_tokens_generated$</field>
+    <description>Passwork: API tokens generated by $(srcuser).</description>
+    <group>passwork_user_account,api,</group>
+  </rule>
+
+  <rule id="100812" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_api_tokens_revoked$</field>
+    <description>Passwork: API tokens revoked by $(srcuser).</description>
+    <group>passwork_user_account,api,</group>
+  </rule>
+
+  <rule id="100813" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^session_started$</field>
+    <description>Passwork: New session started by $(srcuser) from $(srcip).</description>
+    <group>passwork_user_account,session,authentication_success,</group>
+  </rule>
+
+  <rule id="100814" level="7">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_auth_failed$</field>
+    <description>Passwork: Sign-in attempt failed due to incorrect password for $(srcuser) from $(srcip).</description>
+    <group>passwork_user_account,authentication_failed,</group>
+  </rule>
+
+  <rule id="100815" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_2fa_auth_failed$</field>
+    <description>Passwork: Sign-in attempt failed due to incorrect TOTP for $(srcuser) from $(srcip).</description>
+    <group>passwork_user_account,authentication_failed,</group>
+  </rule>
+
+  <rule id="100816" level="7">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^session_pin_code_auth_failed$</field>
+    <description>Passwork: Failed attempt to enter PIN in browser extension for $(srcuser).</description>
+    <group>passwork_user_account,authentication_failed,</group>
+  </rule>
+
+  <rule id="100817" level="10">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_auth_blocked$</field>
+    <description>Passwork: Authentication blocked for $(srcuser) from $(srcip) - Possible brute force attack.</description>
+    <group>passwork_user_account,authentication_failed,attack,</group>
+  </rule>
+
+  <!-- Multiple failed logins detection -->
+  <rule id="100818" level="10" frequency="5" timeframe="120">
+    <if_matched_sid>100814</if_matched_sid>
+    <same_source_ip />
+    <description>Passwork: Multiple failed login attempts from $(srcip) - Possible brute force attack.</description>
+    <group>passwork_user_account,authentication_failed,attack,</group>
+  </rule>
+
+  <!-- ============================================ -->
+  <!-- User Management Actions (100830 - 100859)   -->
+  <!-- ============================================ -->
+
+  <rule id="100830" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_created$</field>
+    <description>Passwork: User created and automatically confirmed by $(srcuser).</description>
+    <group>passwork_user_management,</group>
+  </rule>
+
+  <rule id="100831" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_not_confirmed_created$</field>
+    <description>Passwork: User created and awaiting confirmation by $(srcuser).</description>
+    <group>passwork_user_management,</group>
+  </rule>
+
+  <rule id="100832" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_registered$</field>
+    <description>Passwork: User registered and automatically confirmed.</description>
+    <group>passwork_user_management,</group>
+  </rule>
+
+  <rule id="100833" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_not_confirmed_registered$</field>
+    <description>Passwork: User registered and awaiting confirmation.</description>
+    <group>passwork_user_management,</group>
+  </rule>
+
+  <rule id="100834" level="8">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_confirmed$</field>
+    <description>Passwork: User confirmed by $(srcuser).</description>
+    <group>passwork_user_management,</group>
+  </rule>
+
+  <rule id="100835" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_updated$</field>
+    <description>Passwork: User profile details changed by $(srcuser).</description>
+    <group>passwork_user_management,</group>
+  </rule>
+
+  <rule id="100836" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_updated_via_ldap$</field>
+    <description>Passwork: User profile details changed during LDAP sync.</description>
+    <group>passwork_user_management,ldap,</group>
+  </rule>
+
+  <rule id="100837" level="10">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_password_reset$</field>
+    <description>Passwork: User password reset by $(srcuser).</description>
+    <group>passwork_user_management,authentication,</group>
+  </rule>
+
+  <rule id="100838" level="8">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_2fa_reset_by_admin$</field>
+    <description>Passwork: User 2FA reset by admin $(srcuser).</description>
+    <group>passwork_user_management,authentication,</group>
+  </rule>
+
+  <rule id="100839" level="7">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_set_ldap_sync$</field>
+    <description>Passwork: User LDAP synchronization parameters changed by $(srcuser).</description>
+    <group>passwork_user_management,ldap,</group>
+  </rule>
+
+  <rule id="100840" level="7">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_auth_types_changed$</field>
+    <description>Passwork: User authentication type changed by $(srcuser).</description>
+    <group>passwork_user_management,authentication,</group>
+  </rule>
+
+  <rule id="100841" level="7">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_blocked$</field>
+    <description>Passwork: User blocked by $(srcuser).</description>
+    <group>passwork_user_management,</group>
+  </rule>
+
+  <rule id="100842" level="7">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_unblocked$</field>
+    <description>Passwork: User unblocked by $(srcuser).</description>
+    <group>passwork_user_management,</group>
+  </rule>
+
+  <rule id="100843" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_deleted$</field>
+    <description>Passwork: User deleted by $(srcuser).</description>
+    <group>passwork_user_management,</group>
+  </rule>
+
+  <rule id="100844" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^session_reset$</field>
+    <description>Passwork: User session terminated by $(srcuser).</description>
+    <group>passwork_user_management,session,</group>
+  </rule>
+
+  <rule id="100845" level="12">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_set_owner$</field>
+    <description>Passwork: Organization owner changed by $(srcuser) - CRITICAL.</description>
+    <group>passwork_user_management,critical,</group>
+  </rule>
+
+  <rule id="100846" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_auth_failed_login_not_found$</field>
+    <description>Passwork: Sign-in attempt with non-existent login from $(srcip).</description>
+    <group>passwork_user_management,authentication_failed,</group>
+  </rule>
+
+  <rule id="100847" level="12">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_emergency_password_reset$</field>
+    <description>Passwork: Emergency password reset by $(srcuser) - CRITICAL.</description>
+    <group>passwork_user_management,authentication,critical,</group>
+  </rule>
+
+  <rule id="100848" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_emergency_2fa_reset$</field>
+    <description>Passwork: Emergency 2FA reset by $(srcuser).</description>
+    <group>passwork_user_management,authentication,</group>
+  </rule>
+
+  <!-- ============================================ -->
+  <!-- Group Actions (100860 - 100869)             -->
+  <!-- ============================================ -->
+
+  <rule id="100860" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^userGroup_created$</field>
+    <description>Passwork: Group created by $(srcuser).</description>
+    <group>passwork_group,</group>
+  </rule>
+
+  <rule id="100861" level="7">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^userGroup_updated$</field>
+    <description>Passwork: Group renamed by $(srcuser).</description>
+    <group>passwork_group,</group>
+  </rule>
+
+  <rule id="100862" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^userGroup_deleted$</field>
+    <description>Passwork: Group deleted by $(srcuser).</description>
+    <group>passwork_group,</group>
+  </rule>
+
+  <rule id="100863" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_added_to_userGroup$</field>
+    <description>Passwork: User added to group by $(srcuser).</description>
+    <group>passwork_group,</group>
+  </rule>
+
+  <rule id="100864" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_removed_from_userGroup$</field>
+    <description>Passwork: User excluded from group by $(srcuser).</description>
+    <group>passwork_group,</group>
+  </rule>
+
+  <rule id="100865" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^userGroup_status_changed$</field>
+    <description>Passwork: Group status changed by $(srcuser).</description>
+    <group>passwork_group,</group>
+  </rule>
+
+  <!-- ============================================ -->
+  <!-- Invitation Actions (100870 - 100879)        -->
+  <!-- ============================================ -->
+
+  <rule id="100870" level="8">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^userInvite_created$</field>
+    <description>Passwork: Invite created by $(srcuser).</description>
+    <group>passwork_invite,</group>
+  </rule>
+
+  <rule id="100871" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^userInvite_deleted$</field>
+    <description>Passwork: Invite deleted by $(srcuser).</description>
+    <group>passwork_invite,</group>
+  </rule>
+
+  <rule id="100872" level="8">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_invite_sent$</field>
+    <description>Passwork: Invite sent by $(srcuser).</description>
+    <group>passwork_invite,</group>
+  </rule>
+
+  <!-- ============================================ -->
+  <!-- Role Actions (100880 - 100889)              -->
+  <!-- ============================================ -->
+
+  <rule id="100880" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^userRole_created$</field>
+    <description>Passwork: Role created by $(srcuser).</description>
+    <group>passwork_role,</group>
+  </rule>
+
+  <rule id="100881" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^userRole_name_changed$</field>
+    <description>Passwork: Role renamed by $(srcuser).</description>
+    <group>passwork_role,</group>
+  </rule>
+
+  <rule id="100882" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^userRole_deleted$</field>
+    <description>Passwork: Role deleted by $(srcuser).</description>
+    <group>passwork_role,</group>
+  </rule>
+
+  <rule id="100883" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^user_role_changed$</field>
+    <description>Passwork: User role changed by $(srcuser).</description>
+    <group>passwork_role,</group>
+  </rule>
+
+  <rule id="100884" level="7">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^userRole_updated$</field>
+    <description>Passwork: Role permissions and settings changed by $(srcuser).</description>
+    <group>passwork_role,</group>
+  </rule>
+
+  <!-- ============================================ -->
+  <!-- System Settings Actions (100890 - 100899)   -->
+  <!-- ============================================ -->
+
+  <rule id="100890" level="12">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^settings_changed$</field>
+    <description>Passwork: System settings changed by $(srcuser) - CRITICAL.</description>
+    <group>passwork_system,configuration_change,critical,</group>
+  </rule>
+
+  <rule id="100891" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^task_reindex_passwords_run$</field>
+    <description>Passwork: All passwords reindexed by $(srcuser).</description>
+    <group>passwork_system,</group>
+  </rule>
+
+  <rule id="100892" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^favicons_reset$</field>
+    <description>Passwork: Favicon cache reset by $(srcuser).</description>
+    <group>passwork_system,</group>
+  </rule>
+
+  <!-- ============================================ -->
+  <!-- SSO Settings Actions (100900 - 100909)      -->
+  <!-- ============================================ -->
+
+  <rule id="100900" level="12">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^ssoSettings_changed$</field>
+    <description>Passwork: SSO settings changed by $(srcuser) - CRITICAL.</description>
+    <group>passwork_sso,configuration_change,critical,</group>
+  </rule>
+
+  <!-- ============================================ -->
+  <!-- License Actions (100910 - 100919)           -->
+  <!-- ============================================ -->
+
+  <rule id="100910" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^license_uploaded$</field>
+    <description>Passwork: License key uploaded by $(srcuser).</description>
+    <group>passwork_license,</group>
+  </rule>
+
+  <!-- ============================================ -->
+  <!-- LDAP Settings Actions (100920 - 100949)     -->
+  <!-- ============================================ -->
+
+  <rule id="100920" level="9">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^ldapServer_created$</field>
+    <description>Passwork: LDAP server added by $(srcuser).</description>
+    <group>passwork_ldap,configuration_change,</group>
+  </rule>
+
+  <rule id="100921" level="9">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^ldapServer_auth_enabled$</field>
+    <description>Passwork: Authorization via LDAP server enabled by $(srcuser).</description>
+    <group>passwork_ldap,configuration_change,</group>
+  </rule>
+
+  <rule id="100922" level="9">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^ldapServer_auth_disabled$</field>
+    <description>Passwork: Authorization via LDAP server disabled by $(srcuser).</description>
+    <group>passwork_ldap,configuration_change,</group>
+  </rule>
+
+  <rule id="100923" level="12">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^ldapServer_changed$</field>
+    <description>Passwork: LDAP server settings changed by $(srcuser) - CRITICAL.</description>
+    <group>passwork_ldap,configuration_change,critical,</group>
+  </rule>
+
+  <rule id="100924" level="10">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^ldapServer_usersSettings_changed$</field>
+    <description>Passwork: LDAP user list settings changed by $(srcuser).</description>
+    <group>passwork_ldap,configuration_change,</group>
+  </rule>
+
+  <rule id="100925" level="10">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^ldapServer_userGroupsSettings_changed$</field>
+    <description>Passwork: LDAP group list settings changed by $(srcuser).</description>
+    <group>passwork_ldap,configuration_change,</group>
+  </rule>
+
+  <rule id="100926" level="10">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^ldapServer_syncSettings_changed$</field>
+    <description>Passwork: LDAP synchronization settings changed by $(srcuser).</description>
+    <group>passwork_ldap,configuration_change,</group>
+  </rule>
+
+  <rule id="100927" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^ldapServer_connection_checked$</field>
+    <description>Passwork: LDAP server connection tested by $(srcuser).</description>
+    <group>passwork_ldap,</group>
+  </rule>
+
+  <rule id="100928" level="12">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^ldapServer_deleted$</field>
+    <description>Passwork: LDAP server deleted by $(srcuser) - CRITICAL.</description>
+    <group>passwork_ldap,configuration_change,critical,</group>
+  </rule>
+
+  <rule id="100929" level="7">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^task_manual_load_ldap_users_run$</field>
+    <description>Passwork: LDAP user list refresh started by $(srcuser).</description>
+    <group>passwork_ldap,</group>
+  </rule>
+
+  <rule id="100930" level="7">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^task_manual_load_ldap_userGroups_run$</field>
+    <description>Passwork: LDAP group list refresh started by $(srcuser).</description>
+    <group>passwork_ldap,</group>
+  </rule>
+
+  <rule id="100931" level="9">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^ldapUserGroup_auth_enabled$</field>
+    <description>Passwork: LDAP group authorization enabled by $(srcuser).</description>
+    <group>passwork_ldap,configuration_change,</group>
+  </rule>
+
+  <rule id="100932" level="9">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^ldapUserGroup_auth_disabled$</field>
+    <description>Passwork: LDAP group authorization disabled by $(srcuser).</description>
+    <group>passwork_ldap,configuration_change,</group>
+  </rule>
+
+  <rule id="100933" level="8">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^ldapServer_userGroupsSettings_auth_restriction_enabled$</field>
+    <description>Passwork: Authorization restriction for LDAP groups enabled by $(srcuser).</description>
+    <group>passwork_ldap,configuration_change,</group>
+  </rule>
+
+  <rule id="100934" level="8">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^ldapServer_userGroupsSettings_auth_restriction_disabled$</field>
+    <description>Passwork: Authorization restriction for LDAP groups disabled by $(srcuser).</description>
+    <group>passwork_ldap,configuration_change,</group>
+  </rule>
+
+  <rule id="100935" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^userGroup_added_to_ldapUserGroup$</field>
+    <description>Passwork: LDAP group mapped to Passwork group by $(srcuser).</description>
+    <group>passwork_ldap,</group>
+  </rule>
+
+  <rule id="100936" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^userGroup_removed_from_ldapUserGroup$</field>
+    <description>Passwork: LDAP group unmapped from Passwork group by $(srcuser).</description>
+    <group>passwork_ldap,</group>
+  </rule>
+
+  <rule id="100937" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^task_manual_sync_ldapServer_users_run$</field>
+    <description>Passwork: LDAP users sync with mapped Passwork groups started by $(srcuser).</description>
+    <group>passwork_ldap,</group>
+  </rule>
+
+  <rule id="100938" level="9">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^ldapUserGroup_deleted$</field>
+    <description>Passwork: LDAP group deleted by $(srcuser).</description>
+    <group>passwork_ldap,configuration_change,</group>
+  </rule>
+
+  <!-- ============================================ -->
+  <!-- Background Task Actions (100950 - 100959)   -->
+  <!-- ============================================ -->
+
+  <rule id="100950" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^task_test_run$</field>
+    <description>Passwork: Test background task created by $(srcuser).</description>
+    <group>passwork_task,</group>
+  </rule>
+
+  <rule id="100951" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^taskSettings_changed$</field>
+    <description>Passwork: Background task history retention period changed by $(srcuser).</description>
+    <group>passwork_task,configuration_change,</group>
+  </rule>
+
+  <rule id="100952" level="5">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^tasks_finished_deleted$</field>
+    <description>Passwork: Background task history cleared by $(srcuser).</description>
+    <group>passwork_task,</group>
+  </rule>
+
+  <!-- ============================================ -->
+  <!-- Action History Actions (100960 - 100969)    -->
+  <!-- ============================================ -->
+
+  <rule id="100960" level="3">
+    <if_sid>100700</if_sid>
+    <field name="passwork.event_code">^activityLogSettings_changed$</field>
+    <description>Passwork: Activity log settings changed by $(srcuser).</description>
+    <group>passwork_activity_log,configuration_change,</group>
+  </rule>
+
+</group>
