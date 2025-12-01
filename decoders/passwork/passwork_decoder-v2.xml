@@ -1,0 +1,346 @@
+<!-- ============================================================
+     Passwork
+     ============================================================ -->
+
+<decoder name="passwork">
+  <program_name>^php-fpm</program_name>
+  <prematch>CEF:\d+\|Passwork\|</prematch>
+</decoder>
+
+<!--
+  Main CEF decoder for Passwork
+  Extracts: CEF Version, Product (can contain spaces), Device Version, Signature ID (Event Code), Event Name, Severity, Extension
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex type="pcre2">CEF:(\d+)\|Passwork\|([^|]+)\|(\S+)\|(\S+)\|([^|]+)\|(\d+)\|(.+)</regex>
+  <order>cef.version, passwork.product, passwork.device_version, passwork.event_code, passwork.event_name, passwork.severity, passwork.extension</order>
+</decoder>
+
+<!--
+  Alternative decoder without extension field
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex type="pcre2">CEF:(\d+)\|Passwork\|([^|]+)\|(\S+)\|(\S+)\|([^|]+)\|(\d+)$</regex>
+  <order>cef.version, passwork.product, passwork.device_version, passwork.event_code, passwork.event_name, passwork.severity</order>
+</decoder>
+
+<!--
+  Extension field decoder for source IP (passworkIp) - Passwork native field
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>passworkIp=(\d+.\d+.\d+.\d+)</regex>
+  <order>srcip</order>
+</decoder>
+
+<!--
+  Extension field decoder for source IP (src) - Standard CEF field
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>src=(\d+.\d+.\d+.\d+)</regex>
+  <order>srcip</order>
+</decoder>
+
+<!--
+  Extension field decoder for source user (suser)
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>suser=(\S+)</regex>
+  <order>srcuser</order>
+</decoder>
+
+<!--
+  Extension field decoder for destination user (duser)
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>duser=(\S+)</regex>
+  <order>dstuser</order>
+</decoder>
+
+<!--
+  Extension field decoder for outcome/result
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>outcome=(\S+)</regex>
+  <order>passwork.outcome</order>
+</decoder>
+
+<!--
+  Extension field decoder for action (act)
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>act=(\S+)</regex>
+  <order>passwork.action</order>
+</decoder>
+
+<!--
+  Extension field decoder for message (msg)
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>msg=([^=]+)</regex>
+  <order>passwork.message</order>
+</decoder>
+
+<!--
+  Extension field decoder for custom string 1 (cs1) - vault name
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>cs1=(\S+)</regex>
+  <order>passwork.vault_name</order>
+</decoder>
+
+<!--
+  Extension field decoder for custom string 1 label
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>cs1Label=(\S+)</regex>
+  <order>passwork.cs1_label</order>
+</decoder>
+
+<!--
+  Extension field decoder for custom string 2 (cs2) - password/item name
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>cs2=(\S+)</regex>
+  <order>passwork.item_name</order>
+</decoder>
+
+<!--
+  Extension field decoder for custom string 2 label
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>cs2Label=(\S+)</regex>
+  <order>passwork.cs2_label</order>
+</decoder>
+
+<!--
+  Extension field decoder for custom string 3 (cs3) - folder name
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>cs3=(\S+)</regex>
+  <order>passwork.folder_name</order>
+</decoder>
+
+<!--
+  Extension field decoder for custom string 3 label
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>cs3Label=(\S+)</regex>
+  <order>passwork.cs3_label</order>
+</decoder>
+
+<!--
+  Extension field decoder for custom string 4 (cs4) - group name
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>cs4=(\S+)</regex>
+  <order>passwork.group_name</order>
+</decoder>
+
+<!--
+  Extension field decoder for custom string 4 label
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>cs4Label=(\S+)</regex>
+  <order>passwork.cs4_label</order>
+</decoder>
+
+<!--
+  Extension field decoder for device action (deviceAction)
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>deviceAction=(\S+)</regex>
+  <order>passwork.device_action</order>
+</decoder>
+
+<!--
+  Extension field decoder for request URL
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>request=(\S+)</regex>
+  <order>url</order>
+</decoder>
+
+<!--
+  Extension field decoder for reason
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>reason=(\S+)</regex>
+  <order>passwork.reason</order>
+</decoder>
+
+<!--
+  Extension field decoder for old file name (oldFileName)
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>oldFileName=(\S+)</regex>
+  <order>passwork.old_name</order>
+</decoder>
+
+<!--
+  Extension field decoder for file name (fname)
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>fname=(\S+)</regex>
+  <order>passwork.file_name</order>
+</decoder>
+
+<!--
+  Extension field decoder for device external ID
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>deviceExternalId=(\S+)</regex>
+  <order>passwork.device_external_id</order>
+</decoder>
+
+<!--
+  Extension field decoder for end time (end)
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>end=(\d+)</regex>
+  <order>passwork.end_time</order>
+</decoder>
+
+<!--
+  Extension field decoder for start time (start)
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>start=(\d+)</regex>
+  <order>passwork.start_time</order>
+</decoder>
+
+<!--
+  Extension field decoder for target user (target)
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>target=(\S+)</regex>
+  <order>passwork.target_user</order>
+</decoder>
+
+<!--
+  Extension field decoder for role name
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>role=(\S+)</regex>
+  <order>passwork.role</order>
+</decoder>
+
+<!--
+  Extension field decoder for source user ID (suid) - Passwork native field
+  Format: 24-character alphanumeric ID
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex type="pcre2">suid=([a-zA-Z0-9]{24})</regex>
+  <order>passwork.suid</order>
+</decoder>
+
+<!--
+  Extension field decoder for Passwork Item ID (passworkItemId)
+  Format: 24-character alphanumeric ID
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex type="pcre2">passworkItemId=([a-zA-Z0-9]{24})</regex>
+  <order>passwork.item_id</order>
+</decoder>
+
+<!--
+  Extension field decoder for Passwork Item Name with quoted value (passworkItemName)
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex type="pcre2">passworkItemName="([^"]+)"</regex>
+  <order>passwork.item_name</order>
+</decoder>
+
+<!--
+  Extension field decoder for Passwork Item Name without quotes (passworkItemName)
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>passworkItemName=(\S+)</regex>
+  <order>passwork.item_name</order>
+</decoder>
+
+<!--
+  Extension field decoder for Passwork Folder ID (passworkFolderId)
+  Format: 24-character alphanumeric ID
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex type="pcre2">passworkFolderId=([a-zA-Z0-9]{24})</regex>
+  <order>passwork.folder_id</order>
+</decoder>
+
+<!--
+  Extension field decoder for Passwork Folder Name with quoted value (passworkFolderName)
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex type="pcre2">passworkFolderName="([^"]+)"</regex>
+  <order>passwork.folder_name</order>
+</decoder>
+
+<!--
+  Extension field decoder for Passwork Folder Name without quotes (passworkFolderName)
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>passworkFolderName=(\S+)</regex>
+  <order>passwork.folder_name</order>
+</decoder>
+
+<!--
+  Extension field decoder for Passwork Vault ID (passworkVaultId)
+  Format: 24-character alphanumeric ID
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex type="pcre2">passworkVaultId=([a-zA-Z0-9]{24})</regex>
+  <order>passwork.vault_id</order>
+</decoder>
+
+<!--
+  Extension field decoder for Passwork Vault Name with quoted value (passworkVaultName)
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex type="pcre2">passworkVaultName="([^"]+)"</regex>
+  <order>passwork.vault_name</order>
+</decoder>
+
+<!--
+  Extension field decoder for Passwork Vault Name without quotes (passworkVaultName)
+-->
+<decoder name="passwork">
+  <parent>passwork</parent>
+  <regex>passworkVaultName=(\S+)</regex>
+  <order>passwork.vault_name</order>
+</decoder>
